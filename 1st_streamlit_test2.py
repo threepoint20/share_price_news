@@ -3,15 +3,22 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-def load_data(uploaded_file):
-    df = pd.read_csv(uploaded_file)
-    df['Event'] = df['Event'].fillna('') 
+def load_data(file_path):
+    df = pd.read_csv(file_path)
+    # 確保資料中存在 'Event' 欄位，如果不存在則不要執行下面的操作
+    if 'Event' in df.columns:
+        df['Event'] = df['Event'].fillna('') 
     return df
 
 def select_stock_id(data):
     unique_stock_ids = data['股票代號'].unique()
     selected_stock_id = st.selectbox("Select Stock ID", unique_stock_ids)
     return selected_stock_id
+
+def filter_news_data(data):
+    # 只保留具有新聞值的列
+    filtered_data = data[data['Event'] != '']
+    return filtered_data
 
 def plot_trend_chart(filtered_data, y_axis_range):
     filtered_data['date'] = pd.to_datetime(filtered_data['date']).dt.date  
@@ -39,23 +46,18 @@ def plot_trend_chart(filtered_data, y_axis_range):
     
     st.text_input("Enter your text here", key="event_text_input")
 
-    # # Display text input box when event marker is clicked
-    # selected_point = st.session_state.get('selected_point')
-    # if selected_point is not None:
-    #     st.text_input("Enter your text here", key="event_text_input")
-
 def main():
     st.title("Stock Price Trend Web App")
-    uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
-    min_price = 0.0  
-    max_price = 1000.0  
+    file_path = "result.csv"
 
-    if uploaded_file is not None:
-        df = load_data(uploaded_file)
-        st.write("Please select a stock ID:")
-        selected_stock_id = select_stock_id(df)
+    df = load_data(file_path)
+    st.write("Please select a stock ID:")
+    selected_stock_id = select_stock_id(df)
+    
 
+    # 檢查是否有選擇股票 ID
+    if selected_stock_id:
         with pd.option_context('mode.chained_assignment', None):
             filtered_data = df[df['股票代號'] == selected_stock_id]
             filtered_data['收盤價'] = filtered_data['收盤價'].astype(float)
@@ -66,7 +68,9 @@ def main():
         min_price = mean_price - 6 * sigma
         max_price = mean_price + 6 * sigma
 
-        st.dataframe(filtered_data)
+        st.write("Selected Stock ID:", selected_stock_id)
+        df_with_event = filter_news_data(filtered_data)
+        st.dataframe(df_with_event)
 
         min_price = st.number_input("Enter Minimum Y-axis Value", min_value=0.0, max_value=max_price, value=min_price)
         max_price = st.number_input("Enter Maximum Y-axis Value", min_value=min_price, max_value=10000.0, value=max_price)
