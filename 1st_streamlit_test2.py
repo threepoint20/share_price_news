@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 
 def load_data(file_path):
     df = pd.read_csv(file_path, sep=';')  # 使用分号作为分隔符读取 CSV 文件
-    #df = pd.read_csv(file_path)
+
     # 確保資料中存在 'Event' 欄位，如果不存在則不執行下面的操作
     if 'Event' in df.columns:
         # 將 'Event' 欄位移動到第四個位置
@@ -56,9 +56,7 @@ def plot_trend_chart(filtered_data, y_axis_range):
 def main():
     st.title("Stock Price Trend Web App")
 
-    #file_path = "corrected_all_data_with_date_streamlit_test.csv"
-    file_path = "result.csv"
-    
+    file_path = "corrected_all_data_with_date_streamlit_test.csv" 
     
 
     df = load_data(file_path)
