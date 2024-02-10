@@ -4,10 +4,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 def load_data(file_path):
-    df = pd.read_csv(file_path)
-    # 確保資料中存在 'Event' 欄位，如果不存在則不要執行下面的操作
+    df = pd.read_csv(file_path, sep=';')  # 使用分号作为分隔符读取 CSV 文件
+    #df = pd.read_csv(file_path)
+    # 確保資料中存在 'Event' 欄位，如果不存在則不執行下面的操作
     if 'Event' in df.columns:
-        df['Event'] = df['Event'].fillna('') 
+        # 將 'Event' 欄位移動到第四個位置
+        cols = df.columns.tolist()  # 獲取所有欄位名稱的列表
+        event_index = cols.index('Event')  # 找到 'Event' 欄位的當前索引
+        # 移動 'Event' 欄位
+        cols.insert(3, cols.pop(event_index))  # 從當前位置移除，並插入到索引為3的位置（第四列）
+        df = df.reindex(columns=cols)  # 重新排列欄位順序
+        df['Event'] = df['Event'].fillna('')  # 將 'Event' 欄位中的 NaN 值填充為空字符串
     return df
 
 def select_stock_id(data):
@@ -49,7 +56,10 @@ def plot_trend_chart(filtered_data, y_axis_range):
 def main():
     st.title("Stock Price Trend Web App")
 
+    #file_path = "corrected_all_data_with_date_streamlit_test.csv"
     file_path = "result.csv"
+    
+    
 
     df = load_data(file_path)
     st.write("Please select a stock ID:")
@@ -70,6 +80,10 @@ def main():
 
         st.write("Selected Stock ID:", selected_stock_id)
         df_with_event = filter_news_data(filtered_data)
+        
+        # 删除索引列
+        df_with_event.reset_index(drop=True, inplace=True)
+        
         st.dataframe(df_with_event)
 
         min_price = st.number_input("Enter Minimum Y-axis Value", min_value=0.0, max_value=max_price, value=min_price)
