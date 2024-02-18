@@ -55,7 +55,7 @@ def display(option, period, start, end):
 st.write("# Simple Stock Price App")
 
 with st.form("stock_selection_form"):
-    option = st.text_input('Enter the company symbol (e.g., AAPL for Apple)')
+    option = st.text_input('Enter the company symbol (e.g., AAPL for Apple/2330.TW for TSMC-上市/5211.TWO for 蒙恬-上櫃)')
     period = st.select_slider(
         'Select a frequency of data to display',
         options=['1 min', '2 mins', '5 mins', '15 mins', '30 mins', '1h', '90 mins', '1 day', '5 days', '1 week', '1 mo', '3 mo'],
