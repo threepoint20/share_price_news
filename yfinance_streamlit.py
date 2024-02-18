@@ -1,44 +1,74 @@
-import streamlit as st
+import datetime
 import yfinance as yf
-import plotly.graph_objects as go
+import streamlit as st
+import matplotlib.pyplot as plt
 
-# 設定頁面標題
-st.title('股價資料')
+# 定義一個用於繪製和顯示股票數據的函數
+def display(option, period, start, end):
+    freq = {
+        '1 min': '1m',
+        '2 mins': '2m',
+        '5 mins': '5m',
+        '15 mins': '15m',
+        '30 mins': '30m',
+        '1h': '1h',
+        '90 mins': '90m',
+        '1 day': '1d',
+        '5 days': '5d',
+        '1 week': '1wk',
+        '1 mo': '1mo',
+        '3 mo': '3mo'
+    }
 
-# 輸入股票代碼
-ticker_symbol = st.text_input("請輸入股票代碼（例如GOOGL）：")
+    try:
+        tickerData = yf.Ticker(option)
+        st.write("""### Company presentation:""")
+        st.write(tickerData.info['longBusinessSummary'])
 
-# 添加日期選擇器
-start_date = st.date_input("選擇起始日期", value=None, min_value=None, max_value=None, key=None)
-end_date = st.date_input("選擇結束日期", value=None, min_value=None, max_value=None, key=None)
+        tickerDf = tickerData.history(period=freq[period], start=start, end=end)
+        st.write(f"""
+        Shown is the stock **closing price** and **volume** of {option} from {start} to {end}""")
 
-# 確保結束日期不早於起始日期
-if start_date is not None and end_date is not None:
-    if start_date > end_date:
-        st.error('錯誤：結束日期不能早於起始日期。請重新選擇。')
-    else:
-        st.success('你選擇的起始日期是: {}，結束日期是: {}'.format(start_date, end_date))
+        # 繪製收盤價趨勢圖
+        if not tickerDf.empty:
+            years = tickerDf.index.year.unique()
+            fig, ax = plt.subplots(figsize=(10, 6))
+            for year in years:
+                year_data = tickerDf[tickerDf.index.year == year]
+                ax.plot(year_data.index, year_data['Close'], label=str(year))
 
-        if ticker_symbol:
-            # 獲取股票的信息
-            stock = yf.Ticker(ticker_symbol)
-            company_name = stock.info['longName']
+            plt.xlabel('Date')
+            plt.ylabel('Closing Price')
+            plt.title('Stock Trend')
+            plt.legend()
+            st.pyplot(fig)
 
-            # 獲取股票的股價資料
-            stock_data = stock.history(period='1d', start=start_date, end=end_date)
+            # 顯示交易量圖表
+            st.write("### Stock Volume:")
+            st.line_chart(tickerDf.Volume)
+        else:
+            st.error("No data available for the selected date range.")
+    except yf.exceptions.YFinanceException as e:
+        st.error(f"Error occurred: {e}")
 
-            # 顯示股價資料
-            st.write("### 股價資料")
-            st.write(stock_data)
+# 界面布局和表單
+st.write("# Simple Stock Price App")
 
-            # 創建趨勢圖
-            st.write("### 股價趨勢圖")
-            fig = go.Figure()
+with st.form("stock_selection_form"):
+    option = st.text_input('Enter the company symbol (e.g., AAPL for Apple/2330.TW for TSMC-上市/3105.TWO for 穩懋-上櫃)')
+    period = st.select_slider(
+        'Select a frequency of data to display',
+        options=['1 min', '2 mins', '5 mins', '15 mins', '30 mins', '1h', '90 mins', '1 day', '5 days', '1 week', '1 mo', '3 mo'],
+        value='1 day'
+    )
+    col1, col2 = st.columns(2)
+    start = col1.date_input("Select the start date (format is yyyy-MM-dd)", datetime.date(2010, 1, 1))
+    end = col2.date_input("Select the end date (format is yyyy-MM-dd)")
 
-            # 繪製每年的數據
-            for year in range(start_date.year, end_date.year + 1):
-                year_data = stock_data.loc[str(year)+'-01-01':str(year)+'-12-31']
-                fig.add_trace(go.Scatter(x=year_data.index, y=year_data['Close'], mode='lines', name=str(year)))
+    # 確保結束日期在開始日期之後
+    if start > end:
+        st.error("End date must be after start date.")
 
-            fig.update_layout(title=f'{company_name} ({ticker_symbol}) 股價趨勢圖', xaxis_title='日期', yaxis_title='股價（美元）')
-            st.plotly_chart(fig, use_container_width=True)
+    submitted = st.form_submit_button("Submit")
+    if submitted:
+        display(option, period, start, end)
