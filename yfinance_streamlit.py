@@ -22,8 +22,12 @@ def display(option, period, start, end):
 
     try:
         tickerData = yf.Ticker(option)
-        st.write("""### Company presentation:""")
-        st.write(tickerData.info['longBusinessSummary'])
+        
+        if 'longBusinessSummary' in tickerData.info:
+            st.write("""### Company presentation:""")
+            st.write(tickerData.info['longBusinessSummary'])
+        else:
+            st.write("No business summary available for this company.")
 
         tickerDf = tickerData.history(period=freq[period], start=start, end=end)
         st.write(f"""
