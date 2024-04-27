@@ -6,10 +6,15 @@ from matplotlib.font_manager import FontProperties
 import sqlite3
 import io
 
-# 設置matplotlib支援中文顯示
-font_prop = FontProperties(fname='/System/Library/Fonts/STHeiti Medium.ttc')  # 示範路径，请根据实际情况修改
-plt.rcParams['font.sans-serif'] = font_prop.get_name()
+
+# 設置 matplotlib 支援中文顯示（使用系统默认字体）
+plt.rcParams['font.sans-serif'] = ['DejaVu Sans']  # 或其他可用的字体
 plt.rcParams['axes.unicode_minus'] = False
+
+## 設置matplotlib支援中文顯示
+#font_prop = FontProperties(fname='/System/Library/Fonts/STHeiti Medium.ttc')  # 示範路径，请根据实际情况修改
+#plt.rcParams['font.sans-serif'] = font_prop.get_name()
+#plt.rcParams['axes.unicode_minus'] = False
 
 
 
