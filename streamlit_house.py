@@ -14,7 +14,7 @@ plt.rcParams['axes.unicode_minus'] = False
 
 
 # 連接到 SQLite 資料庫
-conn = sqlite3.connect('data2.db')
+conn = sqlite3.connect('target.db')
 
 # 載入資料
 @st.cache_data
