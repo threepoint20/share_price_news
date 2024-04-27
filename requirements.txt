@@ -6,3 +6,4 @@ scipy
 matplotlib
 yfinance
 googletrans
+PyDrive
