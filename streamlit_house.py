@@ -3,8 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 from matplotlib.font_manager import FontProperties
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 import sqlite3
 import io
 
