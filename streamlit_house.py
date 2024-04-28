@@ -63,7 +63,7 @@ def plot_trend(data, title, y_label):
 
 # 主程式
 def main():
-    st.title('房產交易趨勢分析')
+    st.title('新竹房產交易趨勢分析')
 
     # 載入資料
     data = load_data()
