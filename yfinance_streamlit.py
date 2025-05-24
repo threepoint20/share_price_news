@@ -66,7 +66,7 @@ with st.form("stock_selection_form"):
         value='1 day'
     )
     col1, col2 = st.columns(2)
-    start = col1.date_input("Select the start date (format is yyyy-MM-dd)", datetime.date(2010, 1, 1))
+    start = col1.date_input("Select the start date (format is yyyy-MM-dd)", datetime.date(2020, 1, 1))
     end = col2.date_input("Select the end date (format is yyyy-MM-dd)")
 
     # 確保結束日期在開始日期之後
